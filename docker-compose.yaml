@@ -1,0 +1,55 @@
+#version: "3.9"
+services:
+  zeek:
+    # image: zeek/zeek
+    build:
+      context: containers/zeek
+      dockerfile: Dockerfile
+    network_mode: "host"  # Use the host network to directly access interfaces
+    environment:
+      - INTERFACE=${ZEEK_INTERFACE:-eth0}  # Use a variable for the interface
+    cap_add:  # Grant permissions to access network interfaces and raw sockets
+      - NET_ADMIN
+      - NET_RAW
+    privileged: true  # Required for AF_PACKET and raw network access (adjust as needed)
+
+  loki:
+    build:
+      context: containers/loki
+      dockerfile: Dockerfile
+    network_mode: "host"  # Use the host network to directly access interfaces
+    # ports:
+    #   - "127.0.0.1:13100:3100"
+    # networks:
+    #   - telemetry
+
+  prometheus:
+    build:
+      context: containers/prometheus
+      dockerfile: Dockerfile
+    network_mode: "host"  # Use the host network to directly access interfaces
+    # ports:
+    #   - "127.0.0.1:19090:9090"
+    # networks:
+    #   - telemetry
+
+  grafana:
+    build:
+      context: containers/grafana
+      dockerfile: Dockerfile
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER:-zeek}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:-zeek}
+    network_mode: "host"  # Use the host network to directly access interfaces
+    # ports:
+    #   - "127.0.0.1:13000:3000"
+    # networks:
+    #   - telemetry
+
+# networks:
+#   telemetry: {}
+#   # Allow jumbo frames and name the bridge for monitoring.
+#   monitoring:
+#     driver_opts:
+#       com.docker.network.driver.mtu: 9216
+#       com.docker.network.bridge.name: br-zeekmon0
