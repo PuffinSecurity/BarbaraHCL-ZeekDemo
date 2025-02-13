@@ -1,3 +1,6 @@
+@load protocols/conn/known-hosts
+@load protocols/modbus/known-masters-slaves
+@load protocols/conn/known-services
 @load base/frameworks/telemetry
 @load base/frameworks/logging
 @load ./scripts/telemetry
